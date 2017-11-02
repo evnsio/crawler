@@ -15,6 +15,8 @@ func main() {
 	*/
 	root_url := "https://www.monzo.com"
 
-	fmt.Println(Crawl(root_url, 0))
+	pageParser := NewPageParser(fetchPage)
+	crawler := NewCrawler(pageParser)
+	fmt.Println(crawler.crawl(root_url, 0))
 
 }
