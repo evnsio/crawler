@@ -21,7 +21,6 @@ func generateTestPage(urls... string) string {
 
 
 func mockSingleFetchPage(page_url string) string {
-	//level1 := "http://foo.com"
 	return  ""
 }
 
@@ -80,17 +79,12 @@ func optionTestPageParser(fetcher PageFetcher) func(*Crawler) {
 	}
 }
 
-
 func TestCrawlerReturnsSingleURLforSinglePage(t *testing.T) {
-	// foo.com
-
 	crawler := NewCrawler(
 		optionTestPageParser(mockSingleFetchPage),
-		OptionMaxDepth(3),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 1)
 
 	expected := []string{"http://foo.com"}
 	if !reflect.DeepEqual(urls, expected) {
@@ -103,8 +97,7 @@ func TestCrawlerSingleThreadUnlimitedDepth(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 100)
 
 	expected := []string{
 		"http://foo.com",
@@ -120,11 +113,9 @@ func TestCrawlerSingleThreadUnlimitedDepth(t *testing.T) {
 func TestCrawlerSingleThreadDepthLimitedToZero(t *testing.T) {
 	crawler := NewCrawler(
 		optionTestPageParser(mockMultiFetchPage),
-		OptionMaxDepth(0),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 0)
 
 	expected := []string{}
 
@@ -136,11 +127,9 @@ func TestCrawlerSingleThreadDepthLimitedToZero(t *testing.T) {
 func TestCrawlerSingleThreadDepthLimitedToOne(t *testing.T) {
 	crawler := NewCrawler(
 		optionTestPageParser(mockMultiFetchPage),
-		OptionMaxDepth(1),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 1)
 
 	expected := []string{
 		"http://foo.com",
@@ -155,11 +144,9 @@ func TestCrawlerSingleThreadDepthLimitedToOne(t *testing.T) {
 func TestCrawlerSingleThreadDepthLimitedToTwo(t *testing.T) {
 	crawler := NewCrawler(
 		optionTestPageParser(mockMultiFetchPage),
-		OptionMaxDepth(2),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 2)
 
 	expected := []string{
 		"http://foo.com",
@@ -174,17 +161,15 @@ func TestCrawlerSingleThreadDepthLimitedToTwo(t *testing.T) {
 func TestCrawlerSimpleTreeUnlimitedDepth(t *testing.T) {
 	crawler := NewCrawler(
 		optionTestPageParser(mockMultiFetchTree),
-		OptionMaxDepth(100),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 100)
 
 	expected := []string{
 		"http://foo.com",
 		"http://foo.com/bar/a",
-		"http://foo.com/bar/baz",
 		"http://foo.com/bar/b",
+		"http://foo.com/bar/baz",
 	}
 
 	if !reflect.DeepEqual(urls, expected) {
@@ -197,8 +182,7 @@ func TestCrawlerFetchPageLoop(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPageLoop),
 	)
 
-	urls := make([]string, 0)
-	crawler.crawl("http://foo.com", 0, &urls)
+	urls := crawler.run("http://foo.com", 100)
 
 	expected := []string{
 		"http://foo.com",

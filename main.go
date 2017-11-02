@@ -8,10 +8,8 @@ func main() {
 
 	root_url := "https://www.monzo.com"
 
-	urls := make([]string, 0)
-
-	crawler := NewCrawler(OptionMaxDepth(2))
-	crawler.crawl(root_url, 0, &urls)
+	crawler := NewCrawler()
+	urls := crawler.run(root_url, 3)
 
 	fmt.Println(urls)
 }
