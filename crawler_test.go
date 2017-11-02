@@ -18,8 +18,6 @@ func generateTestPage(urls... string) string {
 	return fmt.Sprintf(simple_page, anchors)
 }
 
-
-
 func mockSingleFetchPage(page_url string) string {
 	return  ""
 }

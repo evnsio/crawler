@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"golang.org/x/net/html"
-	"log"
 	"net/url"
 	"strings"
 )
@@ -40,7 +39,7 @@ func (p *PageParser) extractURLs(page_url string) []string {
 					if string(key) == "href" {
 						u, err := url.Parse(string(val))
 						if err != nil {
-							log.Println(err)
+							// should probably handle these
 							continue
 						}
 

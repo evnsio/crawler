@@ -2,6 +2,7 @@ package main
 
 import (
 	"sort"
+	"fmt"
 )
 
 type Crawler struct {
@@ -27,6 +28,7 @@ func (c *Crawler) run(page_url string, max_depth int) []string {
 	c.max_depth = max_depth
 	c.crawl(page_url, 0, urls)
 
+	// extract the keys and sort
 	keys := make([]string, 0, len(urls))
 	for k := range urls {
 		keys = append(keys, k)
@@ -44,10 +46,13 @@ func (c *Crawler) crawl(page_url string, depth int, urls map[string]int) {
 	}
 
 	// return if we've already visited this url
-	if _, ok := urls[page_url]; ok {
-		return
+	if previous_depth, ok := urls[page_url]; ok {
+		if previous_depth < depth {
+			return
+		}
 	}
 
+	fmt.Print(".")
 	urls[page_url] = depth
 
 	page_urls := c.parser.extractURLs(page_url)
