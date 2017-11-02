@@ -15,6 +15,7 @@ run:
 	@./$(APP)
 
 test:
-	go test -v
+	@echo "Running Tests"
+	@go test -v
 
-up: build run
+go: build run
