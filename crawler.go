@@ -1,8 +1,8 @@
 package main
 
 import (
-	"sort"
 	"fmt"
+	"sync"
 )
 
 type Crawler struct {
@@ -23,40 +23,58 @@ func NewCrawler(options ...func(*Crawler)) *Crawler {
 }
 
 func (c *Crawler) run(page_url string, max_depth int) []string {
-	urls := map[string]int{}
-
 	c.max_depth = max_depth
-	c.crawl(page_url, 0, urls)
 
-	// extract the keys and sort
-	keys := make([]string, 0, len(urls))
-	for k := range urls {
-		keys = append(keys, k)
+	urls := make(chan string)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go c.crawl(page_url, 0, urls, &wg)
+	wg.Done()
+
+	//
+	//// extract the keys and sort
+	//keys := make([]string, 0, len(urls))
+	//for k := range urls {
+	//	keys = append(keys, k)
+	//}
+	//sort.Strings(keys)
+
+	fmt.Println("Waiting for workers to finish")
+	wg.Wait()
+	fmt.Println("Done waiting")
+
+	for elem := range urls {
+		fmt.Println(elem)
 	}
-	sort.Strings(keys)
 
-	return keys
+	fmt.Println("Closing Channel")
+	close(urls)
+	fmt.Println("Channel Closed")
+
+	return []string{"hello"}
 }
 
-func (c *Crawler) crawl(page_url string, depth int, urls map[string]int) {
+func (c *Crawler) crawl(page_url string, depth int, urls chan string, wg *sync.WaitGroup) {
 
 	// return if we've reached max depth
 	if depth >= c.max_depth {
+		wg.Done()
 		return
 	}
 
-	// return if we've already visited this url
-	if previous_depth, ok := urls[page_url]; ok {
-		if previous_depth < depth {
-			return
-		}
-	}
+	//// return if we've already visited this url
+	//if previous_depth, ok := urls[page_url]; ok {
+	//	if previous_depth < depth {
+	//		return
+	//	}
+	//}
 
-	fmt.Print(".")
-	urls[page_url] = depth
+	urls <- page_url
 
 	page_urls := c.parser.extractURLs(page_url)
 	for _, u := range page_urls {
-		c.crawl(u, depth+1, urls)
+		wg.Add(1)
+		go c.crawl(u, depth+1, urls, wg)
 	}
 }
