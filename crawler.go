@@ -1,46 +1,38 @@
 package main
 
-import (
-)
-
 type Crawler struct {
 	parser *PageParser
+	max_depth int
 }
 
-func NewCrawler(pageParser *PageParser) *Crawler {
-	return &Crawler{parser: pageParser}
+func OptionMaxDepth(max_depth int) func(*Crawler) {
+	return func(c *Crawler) {
+		c.max_depth = max_depth
+	}
 }
 
-func (c *Crawler) crawl(page_url string, depth int) []string {
-	pageParser := c.parser
-	urls := pageParser.extractURLs(page_url)
+func NewCrawler(options ...func(*Crawler)) *Crawler {
+	crawler := &Crawler{}
+	crawler.parser = NewPageParser(fetchPage)
+	crawler.max_depth = 100
 
-	if depth >= 1 {
-		return urls
+	for _, option := range options{
+		option(crawler)
 	}
 
-	for _, u := range urls {
-		new_urls := Crawl(u, depth+1)
-		urls = append(urls, new_urls...)
-	}
-
-	return urls
+	return crawler
 }
 
-
-func Crawl(page_url string, depth int) []string {
-
-	pageParser := NewPageParser(fetchPage)
-	urls := pageParser.extractURLs(page_url)
-
-	if depth >= 1 {
-		return urls
+func (c *Crawler) crawl(page_url string, depth int, urls *[]string) {
+	if depth >= c.max_depth {
+		return
 	}
 
-	for _, u := range urls {
-		new_urls := Crawl(u, depth+1)
-		urls = append(urls, new_urls...)
-	}
+	if page_url 
+	*urls = append(*urls, page_url)
 
-	return urls
+	page_urls := c.parser.extractURLs(page_url)
+	for _, u := range page_urls {
+		c.crawl(u, depth+1, urls)
+	}
 }

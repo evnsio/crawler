@@ -6,17 +6,12 @@ import (
 
 func main() {
 
-	/*
-
-	   1. Fetch body of site and return as string - return body
-	   2. Call Crawl on body - return {urls}
-	   3. Print sitemap - prints string
-
-	*/
 	root_url := "https://www.monzo.com"
 
-	pageParser := NewPageParser(fetchPage)
-	crawler := NewCrawler(pageParser)
-	fmt.Println(crawler.crawl(root_url, 0))
+	urls := make([]string, 0)
 
+	crawler := NewCrawler(OptionMaxDepth(2))
+	crawler.crawl(root_url, 0, &urls)
+
+	fmt.Println(urls)
 }
