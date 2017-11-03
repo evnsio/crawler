@@ -4,18 +4,17 @@ APP := crawler
 docker-build:
 	docker build -t $(IMAGE) .
 
-docker-run:
-	docker run -ti $(IMAGE)
-
 build:
 	@echo "Building $(APP)"
 	@go build -o $(APP)
+	@echo "Done"
 
 run:
-	@./$(APP)
+	@./$(APP) ${ARGS}
 
 test:
 	@echo "Running Tests"
 	@go test -v
+	@echo "Done"
 
 go: build run

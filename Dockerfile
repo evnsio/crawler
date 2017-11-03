@@ -10,6 +10,6 @@ RUN apk --update upgrade && \
     apk add curl ca-certificates && \
     update-ca-certificates && \
     rm -rf /var/cache/apk/*
-WORKDIR /app
-COPY --from=build /src/crawler /app/
-ENTRYPOINT ./crawler
+WORKDIR /
+COPY --from=build /src/crawler /
+CMD ["/crawler"]

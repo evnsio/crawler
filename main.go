@@ -5,20 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
-
-func printResults(urls *[]string) {
-	fmt.Println("\nCrawl Results:")
-
-	for _, url := range *urls {
-		indent := strings.Count(url, "/")
-		for i := 0; i < indent; i++ {
-			fmt.Print(" ")
-		}
-		fmt.Print(url, "\n")
-	}
-}
 
 func main() {
 
@@ -41,8 +28,7 @@ func main() {
 
 	// run the crawler
 	crawler := NewCrawler()
-	urls := crawler.run(*url, *max_depth)
+	root := crawler.run(*url, *max_depth)
 
-	printResults(&urls)
-
+	root.toSiteMap()
 }

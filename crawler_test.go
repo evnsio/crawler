@@ -81,7 +81,9 @@ func TestCrawlerReturnsSingleURLforSinglePage(t *testing.T) {
 		optionTestPageParser(mockSingleFetchPage),
 	)
 
-	urls := crawler.run("http://foo.com", 1)
+	pages := crawler.run("http://foo.com", 1)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
 	expected := []string{"http://foo.com"}
 	if !reflect.DeepEqual(urls, expected) {
@@ -94,7 +96,9 @@ func TestCrawlerSingleThreadUnlimitedDepth(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	urls := crawler.run("http://foo.com", 100)
+	pages := crawler.run("http://foo.com", 100)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -112,9 +116,13 @@ func TestCrawlerSingleThreadDepthLimitedToZero(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	urls := crawler.run("http://foo.com", 0)
+	pages := crawler.run("http://foo.com", 0)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
-	expected := []string{}
+	expected := []string{
+		"http://foo.com",
+	}
 
 	if !reflect.DeepEqual(urls, expected) {
 		t.Errorf("\nExpected: %v\nGot: %v", expected, urls)
@@ -126,7 +134,9 @@ func TestCrawlerSingleThreadDepthLimitedToOne(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	urls := crawler.run("http://foo.com", 1)
+	pages := crawler.run("http://foo.com", 1)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -142,7 +152,9 @@ func TestCrawlerSingleThreadDepthLimitedToTwo(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	urls := crawler.run("http://foo.com", 2)
+	pages := crawler.run("http://foo.com", 2)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -159,13 +171,15 @@ func TestCrawlerSimpleTreeUnlimitedDepth(t *testing.T) {
 		optionTestPageParser(mockMultiFetchTree),
 	)
 
-	urls := crawler.run("http://foo.com", 100)
+	pages := crawler.run("http://foo.com", 100)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
 	expected := []string{
 		"http://foo.com",
 		"http://foo.com/bar/a",
-		"http://foo.com/bar/b",
 		"http://foo.com/bar/baz",
+		"http://foo.com/bar/b",
 	}
 
 	if !reflect.DeepEqual(urls, expected) {
@@ -178,9 +192,15 @@ func TestCrawlerFetchPageLoop(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPageLoop),
 	)
 
-	urls := crawler.run("http://foo.com", 100)
+	pages := crawler.run("http://foo.com", 4)
+	urls := make([]string, 0)
+	pages.toList(&urls)
 
+	// Not great, but the expected result is to have the pages repeated
+	// up to the max depth
 	expected := []string{
+		"http://foo.com",
+		"http://foo.com/bar",
 		"http://foo.com",
 		"http://foo.com/bar",
 	}

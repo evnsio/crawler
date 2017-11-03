@@ -11,7 +11,8 @@ func fetchPage(page_url string) string {
 	response, err := http.Get(page_url)
 
 	if err != nil {
-		log.Fatal(err)
+		// should probably handle these
+		return ""
 	}
 
 	defer response.Body.Close()

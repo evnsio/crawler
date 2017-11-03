@@ -1,7 +1,6 @@
 package main
 
 import (
-	"sort"
 	"sync"
 )
 
@@ -22,48 +21,35 @@ func NewCrawler(options ...func(*Crawler)) *Crawler {
 	return crawler
 }
 
-func (c *Crawler) run(page_url string, max_depth int) []string {
+func (c *Crawler) run(page_url string, max_depth int) *Page {
 	c.max_depth = max_depth
-	urls := NewSafeMap()
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go c.crawl(page_url, 0, urls, &wg)
 
-	// wait for all crawls to complete
+	root := NewPage(page_url, 0, nil)
+	go c.crawl(root, &wg)
+
 	wg.Wait()
 
-	// extract the keys and sort
-	// (safe to access map direct here)
-	keys := make([]string, 0, len(urls.v))
-	for k := range urls.v {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	return keys
+	return root
 }
 
-func (c *Crawler) crawl(page_url string, depth int, urls *SafeMap, wg *sync.WaitGroup) {
+func (c *Crawler) crawl(page *Page, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	// return if we've reached max depth
-	if depth >= c.max_depth {
+	if page.depth == c.max_depth {
 		return
 	}
 
-	// return if we've already visited this url
-	if previous_depth, ok := urls.Value(page_url); ok {
-		if previous_depth < depth {
-			return
-		}
-	}
+	page_urls := c.parser.extractURLs(page.url)
+	page.scraped = true
+	for _, child_url := range page_urls {
+		child := NewPage(child_url, page.depth+1, page)
+		page.children = append(page.children, child)
 
-	urls.Set(page_url, depth)
-
-	page_urls := c.parser.extractURLs(page_url)
-	for _, u := range page_urls {
 		wg.Add(1)
-		go c.crawl(u, depth+1, urls, wg)
+		go c.crawl(child, wg)
 	}
 }
