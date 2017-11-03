@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 )
@@ -25,19 +24,18 @@ func NewCrawler(options ...func(*Crawler)) *Crawler {
 
 func (c *Crawler) run(page_url string, max_depth int) []string {
 	c.max_depth = max_depth
-
 	urls := NewSafeMap()
-
 	var wg sync.WaitGroup
+
 	wg.Add(1)
 	go c.crawl(page_url, 0, urls, &wg)
 
-	fmt.Println("Waiting for workers to finish")
+	// wait for all crawls to complete
 	wg.Wait()
-	fmt.Println("Done waiting")
 
 	// extract the keys and sort
-	keys := make([]string, 0, urls.Length())
+	// (safe to access map direct here)
+	keys := make([]string, 0, len(urls.v))
 	for k := range urls.v {
 		keys = append(keys, k)
 	}
