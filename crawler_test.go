@@ -1,12 +1,12 @@
 package main
 
 import (
-	"testing"
 	"fmt"
 	"reflect"
+	"testing"
 )
 
-func generateTestPage(urls... string) string {
+func generateTestPage(urls ...string) string {
 	const simple_page = "<html><body>%s</body></html>"
 	const anchor = "<a href=\"%s\"></a>"
 
@@ -19,7 +19,7 @@ func generateTestPage(urls... string) string {
 }
 
 func mockSingleFetchPage(page_url string) string {
-	return  ""
+	return ""
 }
 
 func mockMultiFetchPage(page_url string) string {
@@ -56,7 +56,6 @@ func mockMultiFetchTree(page_url string) string {
 	}
 	return ""
 }
-
 
 func mockMultiFetchPageLoop(page_url string) string {
 	level1 := "http://foo.com"
@@ -137,7 +136,6 @@ func TestCrawlerSingleThreadDepthLimitedToOne(t *testing.T) {
 		t.Errorf("\nExpected: %v\nGot: %v", expected, urls)
 	}
 }
-
 
 func TestCrawlerSingleThreadDepthLimitedToTwo(t *testing.T) {
 	crawler := NewCrawler(

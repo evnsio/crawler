@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"sync"
 	"sort"
+	"sync"
 )
 
 type Crawler struct {
-	parser *PageParser
+	parser    *PageParser
 	max_depth int
 }
 
@@ -16,7 +16,7 @@ func NewCrawler(options ...func(*Crawler)) *Crawler {
 	crawler.parser = NewPageParser(fetchPage)
 	crawler.max_depth = 100
 
-	for _, option := range options{
+	for _, option := range options {
 		option(crawler)
 	}
 
