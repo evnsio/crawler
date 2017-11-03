@@ -1,9 +1,21 @@
 IMAGE := evns/crawler
+APP := crawler
 
-build:
+docker-build:
 	docker build -t $(IMAGE) .
 
-run:
-	docker run -ti -p 8080:8080 $(IMAGE)
+docker-run:
+	docker run -ti $(IMAGE)
 
-up: build run
+build:
+	@echo "Building $(APP)"
+	@go build -o $(APP)
+
+run:
+	@./$(APP)
+
+test:
+	@echo "Running Tests"
+	@go test -v
+
+go: build run
