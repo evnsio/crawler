@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"flag"
-	"path/filepath"
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -22,6 +22,7 @@ func printResults(urls *[]string) {
 
 func main() {
 
+	// parse arguments
 	url := flag.String("url", "", "URL to crawl")
 	max_depth := flag.Int("max-depth", 100, "Maximum depth to crawl")
 
@@ -38,6 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// run the crawler
 	crawler := NewCrawler()
 	urls := crawler.run(*url, *max_depth)
 
