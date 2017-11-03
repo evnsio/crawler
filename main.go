@@ -39,8 +39,8 @@ func main() {
 	}
 
 	crawler := NewCrawler()
-	crawler.run(*url, *max_depth)
+	urls := crawler.run(*url, *max_depth)
 
-	//printResults(&urls)
+	printResults(&urls)
 
 }
