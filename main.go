@@ -39,6 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	// run the crawler
 	crawler := NewCrawler()
 	urls := crawler.run(*url, *max_depth)
 
