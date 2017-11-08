@@ -1,4 +1,4 @@
-package main
+package asynccrawler
 
 import (
 	"fmt"
@@ -81,9 +81,9 @@ func TestCrawlerReturnsSingleURLforSinglePage(t *testing.T) {
 		optionTestPageParser(mockSingleFetchPage),
 	)
 
-	pages := crawler.run("http://foo.com", 1)
+	pages := crawler.Run("http://foo.com", 1)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
 	expected := []string{"http://foo.com"}
 	if !reflect.DeepEqual(urls, expected) {
@@ -96,9 +96,9 @@ func TestCrawlerSingleThreadUnlimitedDepth(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	pages := crawler.run("http://foo.com", 100)
+	pages := crawler.Run("http://foo.com", 100)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -116,9 +116,9 @@ func TestCrawlerSingleThreadDepthLimitedToZero(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	pages := crawler.run("http://foo.com", 0)
+	pages := crawler.Run("http://foo.com", 0)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -134,9 +134,9 @@ func TestCrawlerSingleThreadDepthLimitedToOne(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	pages := crawler.run("http://foo.com", 1)
+	pages := crawler.Run("http://foo.com", 1)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -152,9 +152,9 @@ func TestCrawlerSingleThreadDepthLimitedToTwo(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPage),
 	)
 
-	pages := crawler.run("http://foo.com", 2)
+	pages := crawler.Run("http://foo.com", 2)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -171,9 +171,9 @@ func TestCrawlerSimpleTreeUnlimitedDepth(t *testing.T) {
 		optionTestPageParser(mockMultiFetchTree),
 	)
 
-	pages := crawler.run("http://foo.com", 100)
+	pages := crawler.Run("http://foo.com", -1)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
 	expected := []string{
 		"http://foo.com",
@@ -192,15 +192,11 @@ func TestCrawlerFetchPageLoop(t *testing.T) {
 		optionTestPageParser(mockMultiFetchPageLoop),
 	)
 
-	pages := crawler.run("http://foo.com", 4)
+	pages := crawler.Run("http://foo.com", -1)
 	urls := make([]string, 0)
-	pages.toList(&urls)
+	pages.GenerateList(&urls)
 
-	// Not great, but the expected result is to have the pages repeated
-	// up to the max depth
 	expected := []string{
-		"http://foo.com",
-		"http://foo.com/bar",
 		"http://foo.com",
 		"http://foo.com/bar",
 	}
