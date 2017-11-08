@@ -14,7 +14,7 @@ run:
 
 test:
 	@echo "Running Tests"
-	@go test -v
+	@go test -v ./...
 	@echo "Done"
 
 go: build run

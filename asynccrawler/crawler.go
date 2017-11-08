@@ -1,18 +1,21 @@
-package main
+package asynccrawler
 
 import (
 	"sync"
 )
 
 type Crawler struct {
-	parser    *PageParser
-	max_depth int
+	parser        *PageParser
+	max_depth     int
+	visited_pages map[string]int
+	mux           sync.Mutex
 }
 
 func NewCrawler(options ...func(*Crawler)) *Crawler {
 	crawler := &Crawler{}
 	crawler.parser = NewPageParser(fetchPage)
 	crawler.max_depth = 100
+	crawler.visited_pages = make(map[string]int)
 
 	for _, option := range options {
 		option(crawler)
@@ -21,13 +24,24 @@ func NewCrawler(options ...func(*Crawler)) *Crawler {
 	return crawler
 }
 
-func (c *Crawler) run(page_url string, max_depth int) *Page {
+func (c *Crawler) alreadyScraped(page *Page) bool {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+	if _, exists := c.visited_pages[page.url]; exists {
+		return true
+	} else {
+		c.visited_pages[page.url] = page.depth
+		return false
+	}
+}
+
+func (c *Crawler) Run(page_url string, max_depth int) *Page {
 	c.max_depth = max_depth
+	root := NewPage(page_url, 0, nil)
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-
-	root := NewPage(page_url, 0, nil)
 	go c.crawl(root, &wg)
 
 	wg.Wait()
@@ -40,6 +54,11 @@ func (c *Crawler) crawl(page *Page, wg *sync.WaitGroup) {
 
 	// return if we've reached max depth
 	if page.depth == c.max_depth {
+		return
+	}
+
+	// return if this page has already been scraped
+	if c.alreadyScraped(page) {
 		return
 	}
 

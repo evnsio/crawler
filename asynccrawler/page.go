@@ -1,6 +1,8 @@
-package main
+package asynccrawler
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Page struct {
 	url      string
@@ -22,29 +24,30 @@ func NewPage(page_url string, page_depth int, page_parent *Page) *Page {
 	return p
 }
 
-func (p *Page) toSiteMap() {
-	fmt.Print("." + p.url + "\n")
+func (p *Page) PrintSiteMap() {
+	fmt.Println("." + p.url)
+
 	for index, _ := range p.children {
 		fmt.Println("├──", p.children[index].url)
 	}
 
-	fmt.Println("")
+	fmt.Println()
 
 	for index, _ := range p.children {
 		child := p.children[index]
 		if child.scraped {
-			child.toSiteMap()
+			child.PrintSiteMap()
 		}
 	}
 }
 
-func (p *Page) toList(urls *[]string) {
+func (p *Page) GenerateList(urls *[]string) {
 	*urls = append(*urls, p.url)
 
 	for index, _ := range p.children {
 		child := p.children[index]
 		if child.scraped {
-			child.toList(urls)
+			child.GenerateList(urls)
 		}
 	}
 
